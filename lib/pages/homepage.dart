@@ -1,67 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:nutriplan/gradient_scaffold.dart';
 import 'package:nutriplan/text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('5 januari 2025'),
-          SizedBox(height: 20),
-          Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.95,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black, width: 1),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Text('data'), Text('data')],
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.95,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.black, width: 1),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(mainAxisSize: MainAxisSize.min, 
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(),
-              ],)
-            ),
-          ),
-        ],
-      ),
-    );
+    return GradientScaffold(
+      appBar: appBar(), 
+      body: columnHome(context),
+      );
   }
 
   AppBar appBar() {
@@ -90,6 +41,240 @@ class Homepage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Column columnHome(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 20),
+        Text('5 januari 2025', style: AppTextStyles.bb),
+        SizedBox(height: 20),
+        komponenIndikator(context),
+        SizedBox(height: 20),
+        kartuDaftarMakanan(context),
+      ],
+    );
+  }
+
+  Center komponenIndikator(BuildContext context) {
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: indikatorKalori(),
+      ),
+    );
+  }
+
+  Widget indikatorKalori() {
+    double now = 800;
+    double total = 2000;
+    double percent = now / total;
+
+    Color progressColor;
+    String statusText;
+
+    if (percent < 0.25) {
+      progressColor = Colors.red;
+      statusText = 'Wah, asupan kalori harian anda masih kurang nih.';
+    } else if (percent < 0.75) {
+      progressColor = Colors.orange;
+      statusText = 'Progress yang sangat baik!';
+    } else {
+      progressColor = Color(0xFF399F44);
+      statusText = 'Hebat! Asupan kalori anda cukup untuk hari ini.';
+    }
+
+    return Card(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircularPercentIndicator(
+              radius: 80.0,
+              lineWidth: 18.0,
+              percent: percent.clamp(0.0, 1.0),
+              backgroundColor: Color(0xFFD9D9D9),
+              progressColor: progressColor,
+              circularStrokeCap: CircularStrokeCap.butt,
+              center: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      text: '${now.toInt()}',
+                      style: AppTextStyles.cb,
+                      children: [
+                        TextSpan(
+                          text: '/${total.toInt()}',
+                          style: AppTextStyles.cb,
+                        ),
+                        TextSpan(text: ' kal', style: AppTextStyles.cr),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  Icon(Icons.edit, size: 16),
+                ],
+              ),
+            ),
+
+            SizedBox(width: 24),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [Text(statusText, style: AppTextStyles.cr)],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Center kartuDaftarMakanan(BuildContext context) {
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.95,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 20, right: 40, left: 40),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 1),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: Transform.scale(
+                    scale: 1,
+                    child: Icon(Icons.search),
+                  ),
+                  hintText: 'Temukan Menu Makanan',
+                  hintStyle: AppTextStyles.cr,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.75,
+              height: MediaQuery.of(context).size.height * 0.263,
+              child: ListView(
+                children: [
+                  listMakanan(
+                    'assets/img/rice.png',
+                    '120 gr',
+                    '120 kal',
+                    false,
+                  ),
+                  listMakanan(
+                    'assets/img/fruit.png',
+                    '120 gr',
+                    '120 kal',
+                    false,
+                  ),
+                  listMakanan(
+                    'assets/img/chicken.png',
+                    '120 gr',
+                    '120 kal',
+                    false,
+                  ),
+                  listMakanan(
+                    'assets/img/chicken.png',
+                    '120 gr',
+                    '120 kal',
+                    false,
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget listMakanan(
+    String imagePath,
+    String weight,
+    String calories,
+    bool isChecked,
+  ) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 1),
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Color(0xFFC2E1C5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              imagePath,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          Text(weight, style: AppTextStyles.cb),
+          Text(calories, style: AppTextStyles.cb),
+
+          //tombol cek
+          Checkbox(value: isChecked, onChanged: (value) {}),
+
+          //tombol hapus
+          IconButton(onPressed: () {}, icon: Icon(Icons.remove_circle_outline)),
+        ],
+      ),
     );
   }
 }

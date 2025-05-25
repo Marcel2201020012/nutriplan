@@ -4,15 +4,51 @@ import 'package:nutriplan/text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
   @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  int indexNavigasi = 0;
+
+  @override
   Widget build(BuildContext context) {
+    final pages = [
+      columnHome(context),
+      const Text('Kelender'),
+      const Text('Profile'),
+    ];
+
     return GradientScaffold(
-      appBar: appBar(), 
-      body: columnHome(context),
-      );
+      appBar: appBar(),
+      body: IndexedStack(index: indexNavigasi, children: pages),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() {
+            indexNavigasi = index;
+          });
+        },
+        currentIndex: indexNavigasi,
+        type: BottomNavigationBarType.shifting,
+        unselectedItemColor: Color(0xFFA4A4AD),
+        selectedItemColor: Color(0xFF61B269),
+        selectedLabelStyle: AppTextStyles.cb,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'Kalender',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Akun',
+          ),
+        ],
+      ),
+    );
   }
 
   AppBar appBar() {
@@ -44,17 +80,21 @@ class Homepage extends StatelessWidget {
     );
   }
 
-  Column columnHome(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 20),
-        Text('5 januari 2025', style: AppTextStyles.bb),
-        SizedBox(height: 20),
-        komponenIndikator(context),
-        SizedBox(height: 20),
-        kartuDaftarMakanan(context),
-      ],
+  Widget columnHome(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 20),
+          Text('5 januari 2025', style: AppTextStyles.bb),
+          SizedBox(height: 20),
+          komponenIndikator(context),
+          SizedBox(height: 20),
+          kartuDaftarMakanan(context),
+          SizedBox(height: 20),
+          SizedBox(height: 20),
+        ],
+      ),
     );
   }
 

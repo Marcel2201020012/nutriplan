@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.1.0
   percent_indicator: ^4.2.5
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -92,3 +93,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  android: true
+  ios: false
+  web: false
+
+  color: "#ffffff"
+
+  android_12:
+    color: "#ffffff"
+    image: "assets/img/splash_screen/logo.png"
+    branding: "assets/img/splash_screen/branding.png"

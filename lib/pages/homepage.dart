@@ -12,8 +12,9 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  int indexNavigasi = 0;
+  List<Map<String, dynamic>> daftarMakanan = [];
 
+  int indexNavigasi = 0;
   @override
   Widget build(BuildContext context) {
     final pages = [
@@ -210,30 +211,20 @@ class _HomepageState extends State<Homepage> {
           children: [
             Container(
               margin: EdgeInsets.only(top: 20, right: 40, left: 40),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: Transform.scale(
-                    scale: 1,
-                    child: Icon(Icons.search),
-                  ),
-                  hintText: 'Temukan Menu Makanan',
-                  hintStyle: AppTextStyles.cr,
-                ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  final items = await pilihMakanan();
+                  if (items != null) {
+                    setState(() {
+                      daftarMakanan.add({
+                        'nama': items['nama'] ?? '',
+                        'berat': items['berat'] ?? '',
+                      });
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(shape: const CircleBorder()),
+                child: Icon(Icons.add, size: 32),
               ),
             ),
 
@@ -242,33 +233,24 @@ class _HomepageState extends State<Homepage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.75,
               height: MediaQuery.of(context).size.height * 0.263,
-              child: ListView(
-                children: [
-                  listMakanan(
-                    'assets/img/rice.png',
-                    '120 gr',
-                    '120 kal',
+              child: ListView.builder(
+                itemCount: daftarMakanan.length,
+                itemBuilder: (context, index) {
+                  final item = daftarMakanan[index];
+                  String gambar =
+                      item['nama'] == 'ayam'
+                          ? 'assets/img/chicken.png'
+                          : 'assets/img/rice.png';
+                  int berat = item['berat'] ?? 0;
+                  int kalori = item['nama'] == 'ayam' ? 12 * berat : 0;
+
+                  return listMakanan(
+                    gambar,
+                    '$berat gram',
+                    '$kalori kal',
                     false,
-                  ),
-                  listMakanan(
-                    'assets/img/fruit.png',
-                    '120 gr',
-                    '120 kal',
-                    false,
-                  ),
-                  listMakanan(
-                    'assets/img/chicken.png',
-                    '120 gr',
-                    '120 kal',
-                    false,
-                  ),
-                  listMakanan(
-                    'assets/img/chicken.png',
-                    '120 gr',
-                    '120 kal',
-                    false,
-                  ),
-                ],
+                  );
+                },
               ),
             ),
 
@@ -308,13 +290,125 @@ class _HomepageState extends State<Homepage> {
           Text(weight, style: AppTextStyles.cb),
           Text(calories, style: AppTextStyles.cb),
 
-          //tombol cek
           Checkbox(value: isChecked, onChanged: (value) {}),
 
-          //tombol hapus
           IconButton(onPressed: () {}, icon: Icon(Icons.remove_circle_outline)),
         ],
       ),
     );
   }
+
+  Future<Map<String, dynamic>?> pilihMakanan() =>
+      showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (context) {
+          final TextEditingController namaMakanan = TextEditingController();
+          final TextEditingController beratMakanan = TextEditingController();
+
+          double kalori = 0;
+          double kaloriPerGram = 0;
+
+          final Map<String, double> makananData = {'ayam': 12.0};
+
+          return StatefulBuilder(
+            builder: (context, setState) {
+              void updateKalori() {
+                final nama = namaMakanan.text.trim().toLowerCase();
+                final berat = int.tryParse(beratMakanan.text) ?? 0;
+
+                if (makananData.containsKey(nama)) {
+                  kaloriPerGram = makananData[nama]!;
+                  setState(() {
+                    kalori = kaloriPerGram * berat;
+                  });
+                } else {
+                  setState(() {
+                    kaloriPerGram = 0;
+                    kalori = 0;
+                  });
+                }
+              }
+
+              return AlertDialog(
+                title: Text("Pilih Makanan"),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      TextField(
+                        controller: namaMakanan,
+                        autofocus: true,
+                        style: AppTextStyles.cr,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(50),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: Icon(Icons.search),
+                          hintText: 'Temukan Menu Makanan',
+                          hintStyle: AppTextStyles.cr,
+                        ),
+                        onChanged: (value) => updateKalori(),
+                      ),
+                      SizedBox(height: 20),
+                      Text("${kalori.toStringAsFixed(0)} Kalori/Gram"),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: beratMakanan,
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.right,
+                              style: AppTextStyles.cr,
+                              decoration: InputDecoration(
+                                hintText: 'Masukkan jumlah',
+                                hintStyle: AppTextStyles.cr,
+                              ),
+                              onChanged: (value) => updateKalori(),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text("Gram"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Batalkan"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop({
+                            'nama': namaMakanan.text,
+                            'berat': int.tryParse(beratMakanan.text) ?? 0,
+                            'kalori': kalori.toInt(),
+                          });
+                        },
+                        child: Text("Tambahkan"),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
 }

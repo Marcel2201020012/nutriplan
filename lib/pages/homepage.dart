@@ -13,8 +13,10 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   List<Map<String, dynamic>> daftarMakanan = [];
+  double totalKalori = 2000;
 
   int indexNavigasi = 0;
+
   @override
   Widget build(BuildContext context) {
     final pages = [
@@ -83,18 +85,21 @@ class _HomepageState extends State<Homepage> {
 
   Widget columnHome(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(height: 20),
-          Text('5 januari 2025', style: AppTextStyles.bb),
-          SizedBox(height: 20),
-          komponenIndikator(context),
-          SizedBox(height: 20),
-          kartuDaftarMakanan(context),
-          SizedBox(height: 20),
-          SizedBox(height: 20),
-        ],
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 20),
+            Text('5 januari 2025', style: AppTextStyles.bb),
+            SizedBox(height: 20),
+            komponenIndikator(context),
+            SizedBox(height: 20),
+            kartuDaftarMakanan(context),
+            SizedBox(height: 20),
+            SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
@@ -121,22 +126,31 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget indikatorKalori() {
-    double now = 800;
-    double total = 2000;
-    double percent = now / total;
+    double now = daftarMakanan.fold(0.0, (sum, item) {
+      if (item['diMakan'] == true) {
+        return sum + (item['kalori'] ?? 0);
+      }
+      return sum;
+    });
+
+    double percent = now / totalKalori;
 
     Color progressColor;
     String statusText;
 
     if (percent < 0.25) {
       progressColor = Colors.red;
-      statusText = 'Wah, asupan kalori harian anda masih kurang nih.';
+      statusText = 'Wah, asupan kalori harian Anda masih kurang nih.';
     } else if (percent < 0.75) {
       progressColor = Colors.orange;
       statusText = 'Progress yang sangat baik!';
-    } else {
+    } else if (percent < 1.00) {
       progressColor = Color(0xFF399F44);
-      statusText = 'Hebat! Asupan kalori anda cukup untuk hari ini.';
+      statusText = 'Hebat! Asupan kalori Anda cukup untuk hari ini.';
+    } else {
+      progressColor = Colors.red;
+      statusText =
+          'Asupan kalori harian Anda melebihi batas yang direkomendasikan!';
     }
 
     return Card(
@@ -155,13 +169,14 @@ class _HomepageState extends State<Homepage> {
               center: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(height: 20),
                   Text.rich(
                     TextSpan(
                       text: '${now.toInt()}',
                       style: AppTextStyles.cb,
                       children: [
                         TextSpan(
-                          text: '/${total.toInt()}',
+                          text: '/${totalKalori.toInt()}',
                           style: AppTextStyles.cb,
                         ),
                         TextSpan(text: ' kal', style: AppTextStyles.cr),
@@ -170,7 +185,10 @@ class _HomepageState extends State<Homepage> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 4),
-                  Icon(Icons.edit, size: 16),
+                  IconButton(
+                    onPressed: editTotalKal,
+                    icon: Icon(Icons.edit, size: 16),
+                  ),
                 ],
               ),
             ),
@@ -186,6 +204,61 @@ class _HomepageState extends State<Homepage> {
           ],
         ),
       ),
+    );
+  }
+
+  Future editTotalKal() {
+    TextEditingController controller = TextEditingController();
+    String? errorText;
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text("Edit Kalori"),
+              content: TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: "Masukkan Jumlah Kalori",
+                  errorText: errorText, // shows red text and border
+                ),
+              ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Batalkan"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        double? newTotal = double.tryParse(controller.text);
+                        if (newTotal != null && newTotal > 0) {
+                          setState(() {
+                            totalKalori = newTotal;
+                          });
+                          Navigator.of(context).pop();
+                        } else {
+                          setStateDialog(() {
+                            errorText = "Input tidak valid";
+                          });
+                        }
+                      },
+                      child: Text("Simpan"),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -216,9 +289,16 @@ class _HomepageState extends State<Homepage> {
                   final items = await pilihMakanan();
                   if (items != null) {
                     setState(() {
+                      final berat = items['berat'] ?? 0;
+                      final nama = items['nama'] ?? '';
+                      final kaloriPerGram = (nama == 'ayam') ? 12 : 1;
+                      final kalori = berat * kaloriPerGram;
+
                       daftarMakanan.add({
-                        'nama': items['nama'] ?? '',
-                        'berat': items['berat'] ?? '',
+                        'nama': nama,
+                        'berat': berat,
+                        'kalori': kalori,
+                        'diMakan': false,
                       });
                     });
                   }
@@ -227,32 +307,54 @@ class _HomepageState extends State<Homepage> {
                 child: Icon(Icons.add, size: 32),
               ),
             ),
-
-            SizedBox(height: 20),
-
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.75,
-              height: MediaQuery.of(context).size.height * 0.263,
-              child: ListView.builder(
-                itemCount: daftarMakanan.length,
-                itemBuilder: (context, index) {
-                  final item = daftarMakanan[index];
-                  String gambar =
-                      item['nama'] == 'ayam'
-                          ? 'assets/img/chicken.png'
-                          : 'assets/img/rice.png';
-                  int berat = item['berat'] ?? 0;
-                  int kalori = item['nama'] == 'ayam' ? 12 * berat : 0;
-
-                  return listMakanan(
-                    gambar,
-                    '$berat gram',
-                    '$kalori kal',
-                    false,
-                  );
-                },
+            if (daftarMakanan.isEmpty)
+              Padding(
+                padding: EdgeInsets.only(left: 20, right: 20),
+                child: Text(
+                  "Ayo Tambahkan Makanan yang ingin dikonsumsi hari ini!",
+                  style: AppTextStyles.cb,
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
+
+            if (daftarMakanan.isNotEmpty) ...[
+              SizedBox(height: 20),
+
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.75,
+                height: MediaQuery.of(context).size.height * 0.263,
+                child: ListView.builder(
+                  itemCount: daftarMakanan.length,
+                  itemBuilder: (context, index) {
+                    final item = daftarMakanan[index];
+                    String gambar =
+                        item['nama'] == 'ayam'
+                            ? 'assets/img/chicken.png'
+                            : 'assets/img/rice.png';
+                    int berat = item['berat'] ?? 0;
+                    int kalori = item['kalori'] ?? 0;
+                    bool diMakan = item['diMakan'] ?? false;
+
+                    return listMakanan(
+                      gambar,
+                      '$berat gram',
+                      '$kalori kal',
+                      diMakan,
+                      () {
+                        setState(() {
+                          daftarMakanan.removeAt(index);
+                        });
+                      },
+                      (bool? value) {
+                        setState(() {
+                          daftarMakanan[index]['diMakan'] = value ?? false;
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
 
             SizedBox(height: 20),
           ],
@@ -266,6 +368,8 @@ class _HomepageState extends State<Homepage> {
     String weight,
     String calories,
     bool isChecked,
+    VoidCallback onDelete,
+    ValueChanged<bool?> onChecked,
   ) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 1),
@@ -275,7 +379,7 @@ class _HomepageState extends State<Homepage> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -290,9 +394,15 @@ class _HomepageState extends State<Homepage> {
           Text(weight, style: AppTextStyles.cb),
           Text(calories, style: AppTextStyles.cb),
 
-          Checkbox(value: isChecked, onChanged: (value) {}),
+          //user menekan checkbox untuk menambahkan nilai variabel now di widget indikatorKalori
+          Checkbox(value: isChecked, onChanged: onChecked),
 
-          IconButton(onPressed: () {}, icon: Icon(Icons.remove_circle_outline)),
+          //hapus makanan
+          if (isChecked == false)
+            IconButton(
+              onPressed: onDelete,
+              icon: Icon(Icons.remove_circle_outline),
+            ),
         ],
       ),
     );
@@ -307,8 +417,10 @@ class _HomepageState extends State<Homepage> {
 
           double kalori = 0;
           double kaloriPerGram = 0;
-
           final Map<String, double> makananData = {'ayam': 12.0};
+
+          String? errorNama;
+          String? errorBerat;
 
           return StatefulBuilder(
             builder: (context, setState) {
@@ -316,17 +428,18 @@ class _HomepageState extends State<Homepage> {
                 final nama = namaMakanan.text.trim().toLowerCase();
                 final berat = int.tryParse(beratMakanan.text) ?? 0;
 
-                if (makananData.containsKey(nama)) {
-                  kaloriPerGram = makananData[nama]!;
-                  setState(() {
-                    kalori = kaloriPerGram * berat;
-                  });
-                } else {
-                  setState(() {
+                setState(() {
+                  errorNama = null;
+                  errorBerat = null;
+
+                  if (makananData.containsKey(nama)) {
+                    kaloriPerGram = makananData[nama]!;
+                  } else {
                     kaloriPerGram = 0;
-                    kalori = 0;
-                  });
-                }
+                  }
+
+                  kalori = kaloriPerGram * berat;
+                });
               }
 
               return AlertDialog(
@@ -355,6 +468,7 @@ class _HomepageState extends State<Homepage> {
                           suffixIcon: Icon(Icons.search),
                           hintText: 'Temukan Menu Makanan',
                           hintStyle: AppTextStyles.cr,
+                          errorText: errorNama,
                         ),
                         onChanged: (value) => updateKalori(),
                       ),
@@ -372,6 +486,8 @@ class _HomepageState extends State<Homepage> {
                               decoration: InputDecoration(
                                 hintText: 'Masukkan jumlah',
                                 hintStyle: AppTextStyles.cr,
+                                errorText: errorBerat,
+                                errorStyle: AppTextStyles.cr,
                               ),
                               onChanged: (value) => updateKalori(),
                             ),
@@ -395,11 +511,33 @@ class _HomepageState extends State<Homepage> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop({
-                            'nama': namaMakanan.text,
-                            'berat': int.tryParse(beratMakanan.text) ?? 0,
-                            'kalori': kalori.toInt(),
+                          String finalNama = namaMakanan.text.trim();
+                          int? finalBerat = int.tryParse(beratMakanan.text);
+
+                          bool valid = true;
+
+                          setState(() {
+                            errorNama = null;
+                            errorBerat = null;
+
+                            if (finalNama.isEmpty) {
+                              errorNama = "Input tidak valid";
+                              valid = false;
+                            }
+
+                            if (finalBerat == null || finalBerat <= 0) {
+                              errorBerat = "Input tidak valid";
+                              valid = false;
+                            }
                           });
+
+                          if (valid) {
+                            Navigator.of(context).pop({
+                              'nama': finalNama,
+                              'berat': finalBerat!,
+                              'kalori': kalori.toInt(),
+                            });
+                          }
                         },
                         child: Text("Tambahkan"),
                       ),

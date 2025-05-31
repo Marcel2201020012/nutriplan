@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:nutriplan/pages/homepage.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:nutriplan/pages/mainscreen.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+import 'models/data_historis.dart';
+
+
+void main() async{
+
+  //inisialisasi package date
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
+
+  //inisialisasi penyimpanan lokal hive
+  await Hive.initFlutter();
+  Hive.registerAdapter(DataHistorisAdapter());
+  await Hive.openBox<DataHistoris>("DataHistorisBox");
+
   runApp(const MyApp());
 }
 

@@ -1,86 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:nutriplan/gradient_scaffold.dart';
-import 'package:nutriplan/text_styles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
+import 'package:nutriplan/models/data_historis.dart';
+import 'package:nutriplan/widgets/gradient_scaffold.dart';
+import 'package:nutriplan/widgets/text_styles.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:nutriplan/widgets/app_bar.dart';
 
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+class Beranda extends StatefulWidget {
+  const Beranda({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<Beranda> createState() => _BerandaState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _BerandaState extends State<Beranda> {
   List<Map<String, dynamic>> daftarMakanan = [];
-  double totalKalori = 2000;
+  double totalKalori = 0;
+  int kalori = 0;
+  bool isDataLoaded = false;
 
-  int indexNavigasi = 0;
+  @override
+  void initState() {
+    super.initState();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    loadHistorisData(today);
+  }
+
+  void saveData() async {
+    final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+    final nowDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    double now = daftarMakanan.fold(0.0, (sum, item) {
+      if (item['diMakan'] == true) {
+        return sum + (item['kalori'] ?? 0);
+      }
+      return sum;
+    });
+
+    final dataMakanan = DataHistoris(
+      daftarMakanan: daftarMakanan,
+      totalKalori: totalKalori,
+      kalori: now,
+    );
+
+    await box.put(nowDate, dataMakanan);
+  }
+
+  void loadHistorisData(String date) async {
+    final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+    final data = box.get(date);
+
+    if (data != null) {
+      setState(() {
+        daftarMakanan = data.daftarMakanan;
+        totalKalori = data.totalKalori;
+        kalori = data.kalori.toInt();
+        isDataLoaded = true;
+      });
+    } else {
+      setState(() {
+        daftarMakanan = [];
+        totalKalori = 2000; //dummy data, nanti diganti waktu udh buat initial page
+        kalori = 0;
+        isDataLoaded = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      columnHome(context),
-      const Text('Kelender'),
-      const Text('Profile'),
-    ];
-
-    return GradientScaffold(
-      appBar: appBar(),
-      body: IndexedStack(index: indexNavigasi, children: pages),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
-          setState(() {
-            indexNavigasi = index;
-          });
-        },
-        currentIndex: indexNavigasi,
-        type: BottomNavigationBarType.shifting,
-        unselectedItemColor: Color(0xFFA4A4AD),
-        selectedItemColor: Color(0xFF61B269),
-        selectedLabelStyle: AppTextStyles.cb,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'Kalender',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Akun',
-          ),
-        ],
-      ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      leading: GestureDetector(
-        onTap: () {},
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage('assets/img/danyi_profile.png'),
-          ),
-        ),
-      ),
-      title: Text('Hai, User', style: AppTextStyles.h5b),
-      actions: [
-        GestureDetector(
-          onTap: () {},
-          child: SizedBox(
-            width: 60,
-            child: SvgPicture.asset(
-              'assets/icons/notif.svg',
-              height: 35,
-              width: 35,
-            ),
-          ),
-        ),
-      ],
-    );
+    return GradientScaffold(appBar: appbar(), body: columnHome(context));
   }
 
   Widget columnHome(BuildContext context) {
@@ -91,7 +81,10 @@ class _HomepageState extends State<Homepage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: 20),
-            Text('5 januari 2025', style: AppTextStyles.bb),
+            Text(
+              DateFormat('d MMMM y', 'id_ID').format(DateTime.now()),
+              style: AppTextStyles.bb,
+            ),
             SizedBox(height: 20),
             komponenIndikator(context),
             SizedBox(height: 20),
@@ -147,7 +140,10 @@ class _HomepageState extends State<Homepage> {
     } else if (percent < 1.00) {
       progressColor = Color(0xFF399F44);
       statusText = 'Hebat! Asupan kalori Anda cukup untuk hari ini.';
-    } else {
+    } else if (percent == 1.00) {
+      progressColor = Color(0xFF399F44);
+      statusText = 'Wow, Asupan harian Anda sangat sempurna!';
+    }else {
       progressColor = Colors.red;
       statusText =
           'Asupan kalori harian Anda melebihi batas yang direkomendasikan!';
@@ -217,7 +213,7 @@ class _HomepageState extends State<Homepage> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: Text("Edit Kalori"),
+              title: Text("Edit Kalori", style: AppTextStyles.bb),
               content: TextField(
                 controller: controller,
                 keyboardType: TextInputType.number,
@@ -242,6 +238,7 @@ class _HomepageState extends State<Homepage> {
                         if (newTotal != null && newTotal > 0) {
                           setState(() {
                             totalKalori = newTotal;
+                            saveData();
                           });
                           Navigator.of(context).pop();
                         } else {
@@ -300,6 +297,8 @@ class _HomepageState extends State<Homepage> {
                         'kalori': kalori,
                         'diMakan': false,
                       });
+
+                      saveData();
                     });
                   }
                 },
@@ -344,11 +343,13 @@ class _HomepageState extends State<Homepage> {
                         setState(() {
                           daftarMakanan.removeAt(index);
                         });
+                        saveData();
                       },
                       (bool? value) {
                         setState(() {
                           daftarMakanan[index]['diMakan'] = value ?? false;
                         });
+                        saveData();
                       },
                     );
                   },
@@ -443,7 +444,7 @@ class _HomepageState extends State<Homepage> {
               }
 
               return AlertDialog(
-                title: Text("Pilih Makanan"),
+                title: Text("Pilih Makanan", style: AppTextStyles.bb),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

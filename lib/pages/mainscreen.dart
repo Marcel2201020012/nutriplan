@@ -3,6 +3,7 @@ import 'package:nutriplan/pages/homepage.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/pages/kalenderpage.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
+import 'package:nutriplan/pages/profile_page.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -14,10 +15,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   int indexNavigasi = 0;
 
-  List<Widget> pageList = const[
-    Beranda(),
-    KalenderPage()
-  ];
+  List<Widget> pageList = const [Beranda(), KalenderPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {

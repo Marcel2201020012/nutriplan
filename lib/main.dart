@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:nutriplan/pages/mainscreen.dart';
+import 'package:nutriplan/cek_otentifikasi.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:nutriplan/pages/mainscreen.dart';
+import 'firebase_options.dart';
 
 import 'models/data_historis.dart';
 
-
-void main() async{
-
+void main() async {
   //inisialisasi package date
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
@@ -16,6 +18,9 @@ void main() async{
   await Hive.initFlutter();
   Hive.registerAdapter(DataHistorisAdapter());
   await Hive.openBox<DataHistoris>("DataHistorisBox");
+
+  //inisialisasi firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -28,7 +33,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Nunito'),
-      home: Homepage(),
+      home: MainScreen(),
+
+      //aktivasi fitur login
+      //home: CekOtentifikasi(),
     );
   }
 }

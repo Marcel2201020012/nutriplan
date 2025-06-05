@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nutriplan/auth_services.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
@@ -7,10 +9,16 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void logout() async {
+      try {
+        await authServices.value.signOut();
+      } on FirebaseAuthException catch (e) {
+        print(e.message);
+      }
+    }
+
     return Scaffold(
-      backgroundColor: const Color(
-        0xFFF0FAF8,
-      ), 
+      backgroundColor: const Color(0xFFF0FAF8),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -44,9 +52,9 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
 
-            // Card pertama 
+            // Card pertama
             Transform.translate(
-              offset: const Offset(0, -40), 
+              offset: const Offset(0, -40),
               child: Card(
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 shape: RoundedRectangleBorder(
@@ -135,7 +143,7 @@ class ProfilePage extends StatelessWidget {
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text("Keluar"),
                     onTap: () {
-                      // logout
+                      logout();
                     },
                   ),
                 ],

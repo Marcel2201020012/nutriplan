@@ -20,7 +20,7 @@ void main() async {
   await Hive.openBox<DataHistoris>("DataHistorisBox");
 
   //inisialisasi firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  //await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }

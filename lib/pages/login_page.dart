@@ -19,6 +19,14 @@ class _LoginPageState extends State<LoginPage> {
   String error = "";
 
   @override
+  void initState() {
+    super.initState();
+    emailController.clear();
+    passwrodController.clear();
+    error = '';
+  }
+
+  @override
   void dispose() {
     emailController.dispose();
     passwrodController.dispose();

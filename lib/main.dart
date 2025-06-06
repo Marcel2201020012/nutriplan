@@ -20,7 +20,7 @@ void main() async {
   await Hive.openBox<DataHistoris>("DataHistorisBox");
 
   //inisialisasi firebase
-  //await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -33,10 +33,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Nunito'),
-      home: MainScreen(),
+      //home: MainScreen(),
 
       //aktivasi fitur login
-      //home: CekOtentifikasi(),
+      home: CekOtentifikasi(),
     );
   }
 }

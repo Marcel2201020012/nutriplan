@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/cek_otentifikasi.dart';
-import 'package:nutriplan/main.dart';
 import 'package:nutriplan/pages/login_page.dart';
+import 'package:nutriplan/pages/mainscreen.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 
 class DaftarPage extends StatefulWidget {
@@ -70,7 +69,7 @@ class _DaftarPageState extends State<DaftarPage> {
                         daftarAkun();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => MyApp()),
+                          MaterialPageRoute(builder: (context) => MainScreen()),
                         );
                       }
                     },
@@ -78,10 +77,7 @@ class _DaftarPageState extends State<DaftarPage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
+                      Navigator.pop(context);
                     },
                     child: Text("Login"),
                   ),

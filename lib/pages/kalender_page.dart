@@ -1,5 +1,8 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/database_services.dart';
 import 'package:nutriplan/models/data_historis.dart';
 import 'package:nutriplan/widgets/app_bar.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
@@ -22,15 +25,26 @@ class _KalenderPageState extends State<KalenderPage> {
   int kalori = 0;
   bool isDataLoaded = false;
 
-  Future<void> loadHistorisData(String date) async {
-    final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
-    final data = box.get(date);
+  final uid = AuthServices().currentUid;
 
-    if (data != null) {
+  Future<void> loadHistorisDataFromFirebase(String date) async {
+    if (uid == null) return;
+
+    final ref = DatabaseServices.ref('users/$uid/historis/$date');
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
       setState(() {
-        daftarMakanan = data.daftarMakanan;
-        totalKalori = data.totalKalori.toInt();
-        kalori = data.kalori.toInt();
+        daftarMakanan =
+            (data['daftarMakanan'] as List)
+                .map<Map<String, dynamic>>(
+                  (item) => Map<String, dynamic>.from(item as Map),
+                )
+                .toList();
+        totalKalori = data['totalKalori'];
+        kalori = (data['kalori'] as num).toInt();
         isDataLoaded = true;
       });
     } else {
@@ -42,6 +56,27 @@ class _KalenderPageState extends State<KalenderPage> {
       });
     }
   }
+
+  // Future<void> loadHistorisData(String date) async {
+  //   final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+  //   final data = box.get(date);
+
+  //   if (data != null) {
+  //     setState(() {
+  //       daftarMakanan = data.daftarMakanan;
+  //       totalKalori = data.totalKalori.toInt();
+  //       kalori = data.kalori.toInt();
+  //       isDataLoaded = true;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       daftarMakanan = [];
+  //       totalKalori = 0;
+  //       kalori = 0;
+  //       isDataLoaded = true;
+  //     });
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -92,7 +127,7 @@ class _KalenderPageState extends State<KalenderPage> {
                             finalTanggal.text = temp;
                             tanggalSelected = true;
                           });
-                          await loadHistorisData(temp);
+                          await loadHistorisDataFromFirebase(temp);
                         }
                       },
                     ),
@@ -180,12 +215,9 @@ class _KalenderPageState extends State<KalenderPage> {
                 itemCount: daftarMakanan.length,
                 itemBuilder: (context, index) {
                   final item = daftarMakanan[index];
-                  String gambar =
-                      item['nama'] == 'ayam'
-                          ? 'assets/img/chicken.png'
-                          : 'assets/img/rice.png';
+                  String gambar = 'assets/img/${item['gambar']}';
                   int berat = item['berat'] ?? 0;
-                  int kalori = item['kalori'] ?? 0;
+                  int kalori = (item['kalori'] as num).toInt();
                   bool diMakan = item['diMakan'] ?? false;
 
                   return listMakanan(

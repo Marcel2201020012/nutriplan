@@ -1,0 +1,14 @@
+{
+    "ayam": {
+        "kalori": 12,
+        "gambar": "chicken.png"
+    },
+    "nasi": {
+        "kalori": 1.3,
+        "gambar": "rice.png"
+    },
+    "telur": {
+        "kalori": 10,
+        "gambar": "fish.png"
+    }
+}

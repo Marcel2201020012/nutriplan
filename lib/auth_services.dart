@@ -8,6 +8,8 @@ class AuthServices {
 
   User? get currentUser => firebaseAuth.currentUser;
 
+  String? get currentUid => FirebaseAuth.instance.currentUser?.uid;
+
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
 
   Future<UserCredential> signIn({

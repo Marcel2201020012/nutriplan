@@ -1,6 +1,9 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
+import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/database_services.dart';
 import 'package:nutriplan/models/data_historis.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
@@ -16,19 +19,31 @@ class Beranda extends StatefulWidget {
 
 class _BerandaState extends State<Beranda> {
   List<Map<String, dynamic>> daftarMakanan = [];
-  double totalKalori = 0;
+  int totalKalori = 0;
   int kalori = 0;
   bool isDataLoaded = false;
+
+  List<String> semuaMakanan = [];
+  List<String> filteredMakanan = [];
 
   @override
   void initState() {
     super.initState();
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    loadHistorisData(today);
+    loadHistorisDataFromFirebase(today);
+
+    getMakananDb().then((makanan) {
+      setState(() {
+        semuaMakanan = makanan;
+        filteredMakanan = makanan;
+      });
+    });
   }
 
-  void saveData() async {
-    final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+  final uid = AuthServices().currentUid;
+
+  void saveDataToFirebase() async {
+    if (uid == null) return;
     final nowDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     double now = daftarMakanan.fold(0.0, (sum, item) {
@@ -38,35 +53,89 @@ class _BerandaState extends State<Beranda> {
       return sum;
     });
 
-    final dataMakanan = DataHistoris(
-      daftarMakanan: daftarMakanan,
-      totalKalori: totalKalori,
-      kalori: now,
-    );
+    final data = {
+      'daftarMakanan': daftarMakanan,
+      'totalKalori': totalKalori,
+      'kalori': now,
+    };
 
-    await box.put(nowDate, dataMakanan);
+    final ref = DatabaseServices.ref('users/$uid/historis/$nowDate');
+    
+    await ref.set(data);
   }
 
-  void loadHistorisData(String date) async {
-    final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
-    final data = box.get(date);
+  void loadHistorisDataFromFirebase(String date) async {
+    if (uid == null) return;
 
-    if (data != null) {
+    final ref = DatabaseServices.ref('users/$uid/historis/$date');
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
       setState(() {
-        daftarMakanan = data.daftarMakanan;
-        totalKalori = data.totalKalori;
-        kalori = data.kalori.toInt();
+        daftarMakanan =
+            (data['daftarMakanan'] as List)
+                .map<Map<String, dynamic>>(
+                  (item) => Map<String, dynamic>.from(item as Map),
+                )
+                .toList();
+        totalKalori = data['totalKalori'];
+        kalori = (data['kalori'] as num).toInt();
         isDataLoaded = true;
       });
     } else {
       setState(() {
         daftarMakanan = [];
-        totalKalori = 2000; //dummy data, nanti diganti waktu udh buat initial page
+        totalKalori = 2000;
         kalori = 0;
         isDataLoaded = true;
       });
     }
   }
+
+  //hive local storage
+  // void saveData() async {
+  //   final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+  //   final nowDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  //   double now = daftarMakanan.fold(0.0, (sum, item) {
+  //     if (item['diMakan'] == true) {
+  //       return sum + (item['kalori'] ?? 0);
+  //     }
+  //     return sum;
+  //   });
+
+  //   final dataMakanan = DataHistoris(
+  //     daftarMakanan: daftarMakanan,
+  //     totalKalori: totalKalori,
+  //     kalori: now,
+  //   );
+
+  //   await box.put(nowDate, dataMakanan);
+  // }
+
+  // void loadHistorisData(String date) async {
+  //   final box = await Hive.openBox<DataHistoris>("DataHistorisBox");
+  //   final data = box.get(date);
+
+  //   if (data != null) {
+  //     setState(() {
+  //       daftarMakanan = data.daftarMakanan;
+  //       totalKalori = data.totalKalori;
+  //       kalori = data.kalori.toInt();
+  //       isDataLoaded = true;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       daftarMakanan = [];
+  //       totalKalori =
+  //           2000; //dummy data, nanti diganti waktu udh buat initial page
+  //       kalori = 0;
+  //       isDataLoaded = true;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +212,7 @@ class _BerandaState extends State<Beranda> {
     } else if (percent == 1.00) {
       progressColor = Color(0xFF399F44);
       statusText = 'Wow, Asupan harian Anda sangat sempurna!';
-    }else {
+    } else {
       progressColor = Colors.red;
       statusText =
           'Asupan kalori harian Anda melebihi batas yang direkomendasikan!';
@@ -234,11 +303,11 @@ class _BerandaState extends State<Beranda> {
                     ),
                     TextButton(
                       onPressed: () {
-                        double? newTotal = double.tryParse(controller.text);
+                        int? newTotal = int.tryParse(controller.text);
                         if (newTotal != null && newTotal > 0) {
                           setState(() {
                             totalKalori = newTotal;
-                            saveData();
+                            saveDataToFirebase();
                           });
                           Navigator.of(context).pop();
                         } else {
@@ -285,21 +354,32 @@ class _BerandaState extends State<Beranda> {
                 onPressed: () async {
                   final items = await pilihMakanan();
                   if (items != null) {
-                    setState(() {
-                      final berat = items['berat'] ?? 0;
-                      final nama = items['nama'] ?? '';
-                      final kaloriPerGram = (nama == 'ayam') ? 12 : 1;
+                    final berat = items['berat'] ?? 0;
+                    final nama = items['nama'] ?? '';
+
+                    final snapshot = await DatabaseServices().read(
+                      path: 'makanan/$nama',
+                    );
+
+                    if (snapshot != null) {
+                      final data = snapshot.value as Map<dynamic, dynamic>;
+                      final kaloriPerGram = data['kalori'] ?? 1;
                       final kalori = berat * kaloriPerGram;
+                      final gambar = data['gambar'] ?? 'rice.png';
 
-                      daftarMakanan.add({
-                        'nama': nama,
-                        'berat': berat,
-                        'kalori': kalori,
-                        'diMakan': false,
+                      setState(() {
+                        daftarMakanan.add({
+                          'nama': nama,
+                          'gambar': gambar,
+                          'berat': berat,
+                          'kalori': kalori,
+                          'diMakan': false,
+                        });
+                        saveDataToFirebase();
                       });
-
-                      saveData();
-                    });
+                    } else {
+                      print("data makanan tidak ada: $nama");
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(shape: const CircleBorder()),
@@ -326,12 +406,9 @@ class _BerandaState extends State<Beranda> {
                   itemCount: daftarMakanan.length,
                   itemBuilder: (context, index) {
                     final item = daftarMakanan[index];
-                    String gambar =
-                        item['nama'] == 'ayam'
-                            ? 'assets/img/chicken.png'
-                            : 'assets/img/rice.png';
+                    String gambar = 'assets/img/${item['gambar']}';
                     int berat = item['berat'] ?? 0;
-                    int kalori = item['kalori'] ?? 0;
+                    int kalori = (item['kalori'] as num).toInt();
                     bool diMakan = item['diMakan'] ?? false;
 
                     return listMakanan(
@@ -343,13 +420,13 @@ class _BerandaState extends State<Beranda> {
                         setState(() {
                           daftarMakanan.removeAt(index);
                         });
-                        saveData();
+                        saveDataToFirebase();
                       },
                       (bool? value) {
                         setState(() {
                           daftarMakanan[index]['diMakan'] = value ?? false;
                         });
-                        saveData();
+                        saveDataToFirebase();
                       },
                     );
                   },
@@ -366,8 +443,8 @@ class _BerandaState extends State<Beranda> {
 
   Widget listMakanan(
     String imagePath,
-    String weight,
-    String calories,
+    String berat,
+    String kalori,
     bool isChecked,
     VoidCallback onDelete,
     ValueChanged<bool?> onChecked,
@@ -392,8 +469,8 @@ class _BerandaState extends State<Beranda> {
             ),
           ),
 
-          Text(weight, style: AppTextStyles.cb),
-          Text(calories, style: AppTextStyles.cb),
+          Text(berat, style: AppTextStyles.cb),
+          Text(kalori, style: AppTextStyles.cb),
 
           //user menekan checkbox untuk menambahkan nilai variabel now di widget indikatorKalori
           Checkbox(value: isChecked, onChanged: onChecked),
@@ -418,27 +495,38 @@ class _BerandaState extends State<Beranda> {
 
           double kalori = 0;
           double kaloriPerGram = 0;
-          final Map<String, double> makananData = {'ayam': 12.0};
 
           String? errorNama;
           String? errorBerat;
 
           return StatefulBuilder(
             builder: (context, setState) {
-              void updateKalori() {
+              Future<void> updateKalori() async {
                 final nama = namaMakanan.text.trim().toLowerCase();
                 final berat = int.tryParse(beratMakanan.text) ?? 0;
 
                 setState(() {
                   errorNama = null;
                   errorBerat = null;
+                });
 
-                  if (makananData.containsKey(nama)) {
-                    kaloriPerGram = makananData[nama]!;
+                final snapshot = await DatabaseServices().read(
+                  path: 'makanan/$nama',
+                );
+
+                if (snapshot != null) {
+                  final data = snapshot.value as Map<dynamic, dynamic>?;
+                  if (data != null && data['kalori'] != null) {
+                    kaloriPerGram = (data['kalori'] as num).toDouble();
                   } else {
                     kaloriPerGram = 0;
                   }
+                } else {
+                  setState(() => errorNama = "Makanan tidak ditemukan");
+                  kaloriPerGram = 0;
+                }
 
+                setState(() {
                   kalori = kaloriPerGram * berat;
                 });
               }
@@ -471,11 +559,81 @@ class _BerandaState extends State<Beranda> {
                           hintStyle: AppTextStyles.cr,
                           errorText: errorNama,
                         ),
-                        onChanged: (value) => updateKalori(),
+                        onChanged: (value) {
+                          final input = value.trim().toLowerCase();
+                          if (input.isEmpty) {
+                            setState(() {
+                              filteredMakanan = [];
+                            });
+                            return;
+                          }
+
+                          final results =
+                              semuaMakanan
+                                  .where(
+                                    (food) =>
+                                        food.toLowerCase().contains(input),
+                                  )
+                                  .toList();
+
+                          results.sort((a, b) {
+                            final aLower = a.toLowerCase();
+                            final bLower = b.toLowerCase();
+                            final startsWithA = aLower.startsWith(input);
+                            final startsWithB = bLower.startsWith(input);
+                            if (startsWithA && !startsWithB) return -1;
+                            if (!startsWithA && startsWithB) return 1;
+                            return aLower.compareTo(bLower);
+                          });
+
+                          setState(() {
+                            filteredMakanan = results.take(3).toList();
+                          });
+
+                          updateKalori();
+                        },
                       ),
                       SizedBox(height: 20),
-                      Text("${kalori.toStringAsFixed(0)} Kalori/Gram"),
-                      SizedBox(height: 20),
+                      if (filteredMakanan.isNotEmpty) ...[
+                        Text("Saran Makanan:", style: AppTextStyles.cr),
+                        SizedBox(height: 20),
+                      ],
+                      if (filteredMakanan.isNotEmpty) ...[
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children:
+                              filteredMakanan.map((suggestion) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    namaMakanan.text = suggestion;
+                                    updateKalori();
+                                    setState(() => filteredMakanan = []);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(
+                                        color: Colors.grey.shade400,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      suggestion,
+                                      style: AppTextStyles.cr.copyWith(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                        SizedBox(height: 20),
+                      ],
                       Row(
                         children: [
                           Expanded(
@@ -490,13 +648,21 @@ class _BerandaState extends State<Beranda> {
                                 errorText: errorBerat,
                                 errorStyle: AppTextStyles.cr,
                               ),
-                              onChanged: (value) => updateKalori(),
+                              onChanged: (value) {
+                                updateKalori();
+                              },
                             ),
                           ),
                           SizedBox(width: 10),
                           Text("Gram"),
                         ],
                       ),
+                      SizedBox(height: 20),
+                      Text(
+                        "Total Kalori: ${kalori.toStringAsFixed(0)}",
+                        style: AppTextStyles.cr,
+                      ),
+                      SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -539,6 +705,8 @@ class _BerandaState extends State<Beranda> {
                               'kalori': kalori.toInt(),
                             });
                           }
+
+                          saveDataToFirebase();
                         },
                         child: Text("Tambahkan"),
                       ),
@@ -550,4 +718,12 @@ class _BerandaState extends State<Beranda> {
           );
         },
       );
+
+  Future<List<String>> getMakananDb() async {
+    final snapshot = await DatabaseServices().read(path: 'makanan');
+    if (snapshot != null && snapshot.value is Map) {
+      return (snapshot.value as Map).keys.cast<String>().toList();
+    }
+    return [];
+  }
 }

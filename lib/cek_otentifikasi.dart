@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/pages/initial_page.dart';
 import 'package:nutriplan/pages/login_page.dart';
 import 'package:nutriplan/pages/mainscreen.dart';
 
@@ -20,7 +21,8 @@ class CekOtentifikasi extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               widget = Center(child: CircularProgressIndicator.adaptive());
             } else if (snapshot.hasData) {
-              widget = MainScreen();
+              // widget = MainScreen(); 
+              widget = InitialPage();
             } else {
               widget = LoginPage();
             }

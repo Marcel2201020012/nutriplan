@@ -2,11 +2,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/database_services.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final uid = AuthServices().currentUid;
+
+  Future<void> deleteuserprofile() async {
+    final ref = DatabaseServices.ref('users/$uid/profile');
+    await ref.remove();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +158,7 @@ class ProfilePage extends StatelessWidget {
                     title: const Text("Keluar"),
                     onTap: () async {
                       logout();
-                      await Hive.box('UserProfile').clear(); 
+                      deleteuserprofile();
                     },
                   ),
                 ],

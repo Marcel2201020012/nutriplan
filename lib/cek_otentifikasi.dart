@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/pages/calculation_page.dart';
 import 'package:nutriplan/pages/initial_page.dart';
 import 'package:nutriplan/pages/login_page.dart';
 import 'package:nutriplan/pages/mainscreen.dart';
@@ -31,7 +32,8 @@ class CekOtentifikasi extends StatelessWidget {
                     return Center(child: CircularProgressIndicator.adaptive());
                   } else if (profileSnapshot.hasData &&
                       profileSnapshot.data == true) {
-                    return MainScreen();
+                    // return MainScreen();
+                    return CalculationPage();
                   } else {
                     return InitialPage();
                   }

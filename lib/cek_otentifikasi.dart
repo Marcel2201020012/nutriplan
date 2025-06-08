@@ -20,44 +20,51 @@ class CekOtentifikasi extends StatelessWidget {
           stream: authServices.authStateChanges,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator.adaptive());
-            } else if (snapshot.hasData) {
-              final uid = snapshot.data?.uid;
-
-              return FutureBuilder(
-                future: checkIsProfileComplete(uid),
-                builder: (context, profileSnapshot) {
-                  if (profileSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator.adaptive());
-                  } else if (profileSnapshot.hasData &&
-                      profileSnapshot.data == true) {
-                    // return MainScreen();
-                    return CalculationPage();
-                  } else {
-                    return InitialPage();
-                  }
-                },
-              );
-            } else {
-              return LoginPage();
+              return const Center(child: CircularProgressIndicator.adaptive());
             }
+
+            if (!snapshot.hasData) {
+              return const LoginPage();
+            }
+
+            final uid = snapshot.data?.uid;
+
+            return FutureBuilder<Map<String, dynamic>?>(
+              future: getProfileStatus(uid),
+              builder: (context, profileSnapshot) {
+                if (profileSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                }
+
+                final profileData = profileSnapshot.data;
+
+                if (profileData == null) {
+                  return const InitialPage();
+                } else if (profileData['isProfileComplete'] == true) {
+                  return const MainScreen();
+                } else {
+                  return const CalculationPage();
+                }
+              },
+            );
           },
         );
       },
     );
   }
 
-  Future<bool> checkIsProfileComplete(String? uid) async {
-    if (uid == null) return false;
+  Future<Map<String, dynamic>?> getProfileStatus(String? uid) async {
+    if (uid == null) return null;
 
     final ref = DatabaseServices.ref('users/$uid/profile');
     final snapshot = await ref.get();
 
-    if (snapshot.exists && snapshot.child('isProfileComplete').value == true) {
-      return true;
-    } else {
-      return false;
-    }
+    if (!snapshot.exists) return null;
+
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
+    return data;
   }
 }

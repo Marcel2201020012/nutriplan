@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/database_services.dart';
-import 'package:nutriplan/models/data_historis.dart';
 import 'package:nutriplan/widgets/app_bar.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
@@ -29,12 +27,12 @@ class _KalenderPageState extends State<KalenderPage> {
   final uid = AuthServices().currentUid;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     loadUserProfile();
   }
 
-  void loadUserProfile() async{
+  void loadUserProfile() async {
     if (uid == null) return;
     final ref = DatabaseServices.ref('users/$uid/profile/');
 
@@ -44,8 +42,9 @@ class _KalenderPageState extends State<KalenderPage> {
       final data = snapshot.value as Map<dynamic, dynamic>;
       setState(() {
         username = data['nama'];
+        totalKalori = data['kalori'];
       });
-    } else{
+    } else {
       setState(() {
         username = "User";
       });
@@ -60,22 +59,29 @@ class _KalenderPageState extends State<KalenderPage> {
     final snapshot = await ref.get();
 
     if (snapshot.exists) {
-      final data = snapshot.value as Map;
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+
       setState(() {
-        daftarMakanan =
-            (data['daftarMakanan'] as List)
-                .map<Map<String, dynamic>>(
-                  (item) => Map<String, dynamic>.from(item as Map),
-                )
-                .toList();
-        totalKalori = data['totalKalori'];
-        kalori = (data['kalori'] as num).toInt();
+        totalKalori = data['totalKalori'] ?? 0;
+        kalori = (data['kalori'] as num?)?.toInt() ?? 0;
+
+        final rawList = data['daftarMakanan'];
+        if (rawList != null && rawList is List) {
+          daftarMakanan =
+              rawList
+                  .map<Map<String, dynamic>>(
+                    (item) => Map<String, dynamic>.from(item as Map),
+                  )
+                  .toList();
+        } else {
+          daftarMakanan = [];
+        }
+
         isDataLoaded = true;
       });
     } else {
       setState(() {
         daftarMakanan = [];
-        totalKalori = 0;
         kalori = 0;
         isDataLoaded = true;
       });
@@ -188,7 +194,7 @@ class _KalenderPageState extends State<KalenderPage> {
       progressColor = Colors.red;
     } else if (percent < 0.75) {
       progressColor = Colors.orange;
-    } else if (percent < 1.00) {
+    } else if (percent <= 1.00) {
       progressColor = Color(0xFF399F44);
     } else {
       progressColor = Colors.red;

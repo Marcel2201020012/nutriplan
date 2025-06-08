@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/cek_otentifikasi.dart';
+import 'package:nutriplan/database_services.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CalculationPage extends StatefulWidget {
   const CalculationPage({super.key});
@@ -12,20 +13,35 @@ class CalculationPage extends StatefulWidget {
 }
 
 class _CalculationPageState extends State<CalculationPage> {
-  double kalori = 2000;
+  int kalori = 0;
 
   // Data user
   String gender = "male";
-  int umur = 25;
-  double berat = 70;
-  double tinggi = 170;
+  int umur = 0;
+  int berat = 0;
+  int tinggi = 0;
   String username = "User";
 
+  final uid = AuthServices().currentUid;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserProfile();
+  }
+
+  void saveKaloriToFirebase() async {
+    if (uid == null) return;
+    final data = {'kalori': kalori, 'isProfileComplete': true};
+    final ref = DatabaseServices.ref('users/$uid/profile');
+
+    await ref.update(data);
+  }
+
   void loadUserProfile() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
 
-    final ref = FirebaseDatabase.instance.ref('users/$uid/profile/');
+    final ref = DatabaseServices.ref('users/$uid/profile/');
     final snapshot = await ref.get();
 
     if (snapshot.exists) {
@@ -34,8 +50,8 @@ class _CalculationPageState extends State<CalculationPage> {
         username = data['nama'] ?? "User";
         gender = data['gender'] ?? "male";
         umur = int.tryParse(data['umur'].toString()) ?? 25;
-        berat = double.tryParse(data['berat'].toString()) ?? 70;
-        tinggi = double.tryParse(data['tinggi'].toString()) ?? 170;
+        berat = int.tryParse(data['berat'].toString()) ?? 70;
+        tinggi = int.tryParse(data['tinggi'].toString()) ?? 170;
 
         hitungKalori();
       });
@@ -50,44 +66,39 @@ class _CalculationPageState extends State<CalculationPage> {
       hasil = 447.593 + (9.247 * berat) + (3.098 * tinggi) - (4.330 * umur);
     }
     setState(() {
-      kalori = hasil;
+      kalori = hasil.toInt();
+      saveKaloriToFirebase();
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserProfile(); // ambil data saat halaman dimuat
   }
 
   void editKaloriDialog() {
     final controller = TextEditingController(text: kalori.toStringAsFixed(0));
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Edit Kalori"),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: "Kalori harian",
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Edit Kalori"),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Kalori harian"),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  final input = int.tryParse(controller.text);
+                  if (input != null) {
+                    setState(() {
+                      kalori = input;
+                      saveKaloriToFirebase();
+                    });
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text("Simpan"),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              final input = double.tryParse(controller.text);
-              if (input != null) {
-                setState(() {
-                  kalori = input;
-                });
-              }
-              Navigator.pop(context);
-            },
-            child: const Text("Simpan"),
-          ),
-        ],
-      ),
     );
   }
 
@@ -157,7 +168,12 @@ class _CalculationPageState extends State<CalculationPage> {
                             const SizedBox(height: 24),
                             ElevatedButton(
                               onPressed: () {
-                                // lanjutkan
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const CekOtentifikasi(),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFF2D8A7),

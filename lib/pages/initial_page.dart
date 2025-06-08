@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/cek_otentifikasi.dart';
 import 'package:nutriplan/database_services.dart';
-import 'package:nutriplan/pages/mainscreen.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 
@@ -16,19 +15,25 @@ class InitialPage extends StatefulWidget {
 
 class _InitialPageState extends State<InitialPage> {
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController(text: '20');
-  final TextEditingController weightController = TextEditingController(
-    text: '90',
-  );
-  final TextEditingController heightController = TextEditingController(
-    text: '180',
-  );
+  final TextEditingController ageController = TextEditingController();
+  final TextEditingController weightController = TextEditingController();
+  final TextEditingController heightController = TextEditingController();
 
   String selectedGender = 'male';
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    ageController.dispose();
+    weightController.dispose();
+    heightController.dispose();
+    super.dispose();
+  }
 
   //firebase data stuff
   Future<void> saveUserProfileToFirebase({
     required String uid,
+    required String gender,
     required String nama,
     required String umur,
     required String berat,
@@ -37,11 +42,12 @@ class _InitialPageState extends State<InitialPage> {
     final ref = DatabaseServices.ref('users/$uid/profile');
 
     final profileData = {
+      'gender': gender,
       'nama': nama,
       'umur': umur,
       'berat': berat,
       'tinggi': tinggi,
-      'isProfileComplete': true,
+      'isProfileComplete': false,
     };
 
     await ref.set(profileData);
@@ -214,6 +220,7 @@ class _InitialPageState extends State<InitialPage> {
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       suffixText: "Kg",
+                      hintText: "Berat Badan",
                       hintStyle: AppTextStyles.bl,
                       border: UnderlineInputBorder(),
                     ),
@@ -239,6 +246,7 @@ class _InitialPageState extends State<InitialPage> {
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       suffixText: "Cm",
+                      hintText: "Tinggi Badan",
                       hintStyle: AppTextStyles.bl,
                       border: UnderlineInputBorder(),
                     ),
@@ -253,6 +261,7 @@ class _InitialPageState extends State<InitialPage> {
               child: ElevatedButton(
                 onPressed: () async {
                   final uid = AuthServices().currentUid;
+                  final gender = selectedGender;
                   final name = usernameController.text.trim();
                   final age = ageController.text.trim();
                   final weight = weightController.text.trim();
@@ -278,12 +287,14 @@ class _InitialPageState extends State<InitialPage> {
                     return;
                   }
                   if (uid != null &&
+                      gender.isNotEmpty &&
                       name.isNotEmpty &&
                       age.isNotEmpty &&
                       weight.isNotEmpty &&
                       height.isNotEmpty) {
                     await saveUserProfileToFirebase(
                       uid: uid,
+                      gender: gender,
                       nama: name,
                       umur: age,
                       berat: weight,
@@ -300,11 +311,6 @@ class _InitialPageState extends State<InitialPage> {
                       ),
                     );
                   }
-                  // Semua sudah valid, pindah halaman
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => MainScreen()),
-                  // );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFDE9CC),

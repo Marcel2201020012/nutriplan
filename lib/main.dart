@@ -4,7 +4,6 @@ import 'package:nutriplan/cek_otentifikasi.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:nutriplan/pages/mainscreen.dart';
 import 'firebase_options.dart';
 
 import 'models/data_historis.dart';
@@ -18,6 +17,8 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(DataHistorisAdapter());
   await Hive.openBox<DataHistoris>("DataHistorisBox");
+
+  await Hive.openBox("UserProfile");
 
   //inisialisasi firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -33,7 +34,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Nunito'),
-      //home: MainScreen(),
 
       //aktivasi fitur login
       home: CekOtentifikasi(),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 
-AppBar appbar(){
+AppBar appbar(String username){
   return AppBar(
       leading: GestureDetector(
         onTap: () {},
@@ -14,7 +14,7 @@ AppBar appbar(){
           ),
         ),
       ),
-      title: Text('Hai, User', style: AppTextStyles.h5b),
+      title: Text('Hai, $username', style: AppTextStyles.h5b),
       actions: [
         GestureDetector(
           onTap: () {},

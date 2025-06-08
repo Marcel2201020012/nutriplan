@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:nutriplan/auth_services.dart';
@@ -17,6 +16,8 @@ class KalenderPage extends StatefulWidget {
 }
 
 class _KalenderPageState extends State<KalenderPage> {
+  String username = '';
+
   final TextEditingController finalTanggal = TextEditingController();
   bool tanggalSelected = false;
 
@@ -26,6 +27,30 @@ class _KalenderPageState extends State<KalenderPage> {
   bool isDataLoaded = false;
 
   final uid = AuthServices().currentUid;
+
+  @override
+  void initState(){
+    super.initState();
+    loadUserProfile();
+  }
+
+  void loadUserProfile() async{
+    if (uid == null) return;
+    final ref = DatabaseServices.ref('users/$uid/profile/');
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      setState(() {
+        username = data['nama'];
+      });
+    } else{
+      setState(() {
+        username = "User";
+      });
+    }
+  }
 
   Future<void> loadHistorisDataFromFirebase(String date) async {
     if (uid == null) return;
@@ -87,7 +112,7 @@ class _KalenderPageState extends State<KalenderPage> {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      appBar: appbar(),
+      appBar: appbar(username),
       body: Center(
         child: SingleChildScrollView(
           child: SizedBox(

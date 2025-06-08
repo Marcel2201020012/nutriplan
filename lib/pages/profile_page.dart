@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
@@ -13,7 +14,7 @@ class ProfilePage extends StatelessWidget {
       try {
         await authServices.value.signOut();
       } on FirebaseAuthException catch (e) {
-        print(e.message);
+        //print(e.message);
       }
     }
 
@@ -142,8 +143,9 @@ class ProfilePage extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text("Keluar"),
-                    onTap: () {
+                    onTap: () async {
                       logout();
+                      await Hive.box('UserProfile').clear(); 
                     },
                   ),
                 ],

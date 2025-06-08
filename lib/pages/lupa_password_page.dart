@@ -32,7 +32,7 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
       setState(() {
         error = e.message ?? "";
       });
-      print(e.message);
+      //print(e.message);
     }
   }
 

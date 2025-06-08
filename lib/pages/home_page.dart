@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +17,8 @@ class Beranda extends StatefulWidget {
 }
 
 class _BerandaState extends State<Beranda> {
+  String username = '';
+
   List<Map<String, dynamic>> daftarMakanan = [];
   int totalKalori = 0;
   int kalori = 0;
@@ -30,6 +31,7 @@ class _BerandaState extends State<Beranda> {
   void initState() {
     super.initState();
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    loadUserProfile();
     loadHistorisDataFromFirebase(today);
 
     getMakananDb().then((makanan) {
@@ -41,6 +43,24 @@ class _BerandaState extends State<Beranda> {
   }
 
   final uid = AuthServices().currentUid;
+
+  void loadUserProfile() async{
+    if (uid == null) return;
+    final ref = DatabaseServices.ref('users/$uid/profile/');
+
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      setState(() {
+        username = data['nama'];
+      });
+    } else{
+      setState(() {
+        username = "User";
+      });
+    }
+  }
 
   void saveDataToFirebase() async {
     if (uid == null) return;
@@ -139,7 +159,7 @@ class _BerandaState extends State<Beranda> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientScaffold(appBar: appbar(), body: columnHome(context));
+    return GradientScaffold(appBar: appbar(username), body: columnHome(context));
   }
 
   Widget columnHome(BuildContext context) {
@@ -378,7 +398,7 @@ class _BerandaState extends State<Beranda> {
                         saveDataToFirebase();
                       });
                     } else {
-                      print("data makanan tidak ada: $nama");
+                      //print("data makanan tidak ada: $nama");
                     }
                   }
                 },

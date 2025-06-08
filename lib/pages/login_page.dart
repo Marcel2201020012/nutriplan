@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         error = e.message ?? "";
       });
-      print(e.message);
+      //(e.message);
     }
   }
 
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         error = e.message ?? "";
       });
-      print(e.message);
+      //print(e.message);
     }
   }
 

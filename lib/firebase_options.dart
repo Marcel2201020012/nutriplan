@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -57,7 +54,19 @@ class DefaultFirebaseOptions {
     appId: '1:707447606414:android:4ae754897a34d5c7848ddf',
     messagingSenderId: '707447606414',
     projectId: 'nutriplan-47cc4',
+    databaseURL: 'https://nutriplan-47cc4-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'nutriplan-47cc4.firebasestorage.app',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCzlA_wvMDRq_94PVwFpa4yCf1kLdhNVT0',
+    appId: '1:707447606414:web:3903e6ad3d86b768848ddf',
+    messagingSenderId: '707447606414',
+    projectId: 'nutriplan-47cc4',
+    authDomain: 'nutriplan-47cc4.firebaseapp.com',
+    databaseURL: 'https://nutriplan-47cc4-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'nutriplan-47cc4.firebasestorage.app',
+    measurementId: 'G-8GFD0Z3N7S',
   );
 
 }

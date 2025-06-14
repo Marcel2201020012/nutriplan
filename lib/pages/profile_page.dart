@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/widgets/text_styles.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
@@ -13,29 +14,50 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String berat = '';
   final uid = AuthServices().currentUid;
 
-  Future<void> deleteuserprofile() async {
-    final ref = DatabaseServices.ref('users/$uid/profile');
-    await ref.remove();
+  @override
+  void initState() {
+    super.initState();
+    loadUserProfile();
+  }
+
+  void loadUserProfile() async {
+    if (uid == null) return;
+    final ref = DatabaseServices.ref('users/$uid/profile/');
+    final snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map<dynamic, dynamic>;
+      setState(() {
+        username = data['nama'] ?? 'Tidak diketahui';
+        berat = data['berat'] ?? '-';
+      });
+    } else {
+      setState(() {
+        username = 'Pengguna Baru';
+        berat = '-';
+      });
+    }
+  }
+
+  void logout() async {
+    try {
+      await authServices.value.signOut();
+    } on FirebaseAuthException catch (e) {
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    void logout() async {
-      try {
-        await authServices.value.signOut();
-      } on FirebaseAuthException catch (e) {
-        //print(e.message);
-      }
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF0FAF8),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // FOTO PROFIL IKON NOTIFIKASI
+            // FOTO PROFIL + IKON NOTIFIKASI
             Stack(
               children: [
                 Container(
@@ -65,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
 
-            // Card pertama
+            // KARTU PROFIL
             Transform.translate(
               offset: const Offset(0, -40),
               child: Card(
@@ -83,17 +105,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icons.person_outline,
                           color: Color(0xFF61B269),
                         ),
-                        title: const Text(
-                          "Danyi Aprizal",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        title: Text(username, style: AppTextStyles.bl),
                       ),
                       ListTile(
                         leading: const Icon(
                           Icons.track_changes_outlined,
                           color: Color(0xFF61B269),
                         ),
-                        title: const Text("Penambahan Berat Badan"),
+                        title: Text("Berat: $berat kg", style: AppTextStyles.bl),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -118,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            // Card fitur lainnya
+            // KARTU FITUR
             Card(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               shape: RoundedRectangleBorder(
@@ -157,7 +176,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     title: const Text("Keluar"),
                     onTap: () async {
                       logout();
-                      //deleteuserprofile();
                     },
                   ),
                 ],

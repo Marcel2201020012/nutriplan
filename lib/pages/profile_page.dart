@@ -6,6 +6,7 @@ import 'package:nutriplan/widgets/text_styles.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
+//Finish ya
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 

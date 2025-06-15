@@ -41,83 +41,83 @@
     },
     "ikan tongkol": {
         "kalori": 1,
-        "gambar": "ikan tongkol.jpg"
+        "gambar": "fish.png"
     },
     "ikan bandeng": {
         "kalori": 1.29,
-        "gambar": "bandeng.jpg"
+        "gambar": "fish.png"
     },
     "ikan bawal": {
         "kalori": 0.96,
-        "gambar": "ikan bawal.png"
+        "gambar": "fish.png"
     },
     "ikan cakalang": {
         "kalori": 1.07,
-        "gambar": "cakalang.png"
+        "gambar": "fish.png"
     },
     "ikan gabus": {
         "kalori": 0.74,
-        "gambar": "ikan gabus.jpg"
+        "gambar": "fish.png"
     },
     "ikan hiu": {
         "kalori": 0.57,
-        "gambar": "ikan hiu.png"
+        "gambar": "fish.png"
     },
     "ikan asin": {
         "kalori": 1.93,
-        "gambar": "ikan tongkol.jpg"
+        "gambar": "fish.png"
     },
     "ikan kakap": {
         "kalori": 0.92,
-        "gambar": "ikan tongkol.png"
+        "gambar": "fish.png"
     },
     "ikan kembung": {
         "kalori": 1.03,
-        "gambar": "ikan tongkol.png"
+        "gambar": "fish.png"
     },
     "ikan layang": {
         "kalori": 1.09,
-        "gambar": "ikan layang.jpg"
+        "gambar": "fish.png"
     },
     "ikan lele": {
         "kalori": 2.52,
-        "gambar": "ikan lele.png"
+        "gambar": "fish.png"
     },
     "ikan mas": {
         "kalori": 0.86,
-        "gambar": "ikan mas.png"
+        "gambar": "fish.png"
     },
     "ikan mujair": {
         "kalori": 0.89,
-        "gambar": "ikan mujair.png"
+        "gambar": "fish.png"
     },
     "ikan patin": {
         "kalori": 1.32,
-        "gambar": "ikan patin.png"
+        "gambar": "fish.png"
     },
     "ikan sarden": {
         "kalori": 1.09,
-        "gambar": "ikan sarden.png"
+        "gambar": "fish.png"
     },
     "ikan selar": {
         "kalori": 1,
-        "gambar": "ikan selar.png"
+        "gambar": "fish.png"
     },
     "ikan sepat": {
         "kalori": 0.84,
-        "gambar": "ikan sepat.jpg"
+        "gambar": "fish.png"
     },
     "ikan teri": {
         "kalori": 0.74,
-        "gambar": "ikan teri.png"
+        "gambar": "fish.png"
     },
     "daging sapi": {
         "kalori": 1.84,
-        "gambar": "beef.png"
+        "gambar": "daging.jpg"
     },
     "bebek": {
         "kalori": 3.03,
-        "gambar": "daging bebek.png"
+        "gambar": "chicken.png"
     },
     "telur ayam": {
         "kalori": 1.62,
@@ -138,6 +138,58 @@
     "telur penyu": {
         "kalori": 1.44,
         "gambar": "telur.png"
+    },
+    "nasi goreng": {
+        "kalori": 2.76,
+        "gambar": "nasi rames.jpg"
+    },
+    "nasi rames": {
+        "kalori": 1.55,
+        "gambar": "nasi rames.jpg"
+    },
+    "nasi uduk": {
+        "kalori": 2.533,
+        "gambar": "nasi rames.jpg"
+    },
+    "rendang": {
+        "kalori": 1.93,
+        "gambar": "rendang.jpg"
+    },
+    "rawon": {
+        "kalori": 0.6,
+        "gambar": "rawon.png"
+    },
+    "mie aceh rebus": {
+        "kalori": 1.13,
+        "gambar": "mie rebus.png"
+    },
+    "mie ayam": {
+        "kalori": 1.02,
+        "gambar": "mie rebus.png"
+    },
+    "mie goreng": {
+        "kalori": 4.68,
+        "gambar": "mie goreng.png"
+    },
+    "mie pangsit basah": {
+        "kalori": 1.05,
+        "gambar": "mie pangsit basah.png"
+    },
+    "keripik tempe": {
+        "kalori": 5.42,
+        "gambar": "kripik tempe.png"
+    },
+    "tempe goreng": {
+        "kalori": 3.28,
+        "gambar": "tempe goreng.png"
+    },
+    "tahu goreng": {
+        "kalori": 1.15,
+        "gambar": "tempe goreng.png"
+    },
+    "bakso": {
+        "kalori": 0.76,
+        "gambar": "bakso.png"
     },
     "roti": {
         "kalori": 2.4,

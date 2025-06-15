@@ -46,7 +46,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void logout() async {
     try {
       await authServices.value.signOut();
+<<<<<<< HEAD
     } on FirebaseAuthException catch (e) {}
+=======
+    } on FirebaseAuthException catch (e) {
+    }
+>>>>>>> 0fe1d7666fcd7ed412f7b5d8bc428fdda2a2620b
   }
 
   @override
@@ -104,19 +109,27 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icons.person_outline,
                           color: Color(0xFF61B269),
                         ),
+<<<<<<< HEAD
                         title: Text(
                           "Nama: $username ", 
                         style: AppTextStyles.bl),
+=======
+                        title: Text(username, style: AppTextStyles.bl),
+>>>>>>> 0fe1d7666fcd7ed412f7b5d8bc428fdda2a2620b
                       ),
                       ListTile(
                         leading: const Icon(
                           Icons.track_changes_outlined,
                           color: Color(0xFF61B269),
                         ),
+<<<<<<< HEAD
                         title: Text(
                           "Berat: $berat kg",
                           style: AppTextStyles.bl,
                         ),
+=======
+                        title: Text("Berat: $berat kg", style: AppTextStyles.bl),
+>>>>>>> 0fe1d7666fcd7ed412f7b5d8bc428fdda2a2620b
                       ),
                       Align(
                         alignment: Alignment.centerRight,

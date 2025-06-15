@@ -35,7 +35,6 @@ class _BerandaState extends State<Beranda> {
     getMakananDb().then((makanan) {
       setState(() {
         semuaMakanan = makanan;
-        filteredMakanan = makanan;
       });
     });
   }
@@ -317,7 +316,7 @@ class _BerandaState extends State<Beranda> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hintText: "Masukkan Jumlah Kalori",
-                  errorText: errorText, // shows red text and border
+                  errorText: errorText,
                 ),
               ),
               actions: [
@@ -562,14 +561,15 @@ class _BerandaState extends State<Beranda> {
 
               return AlertDialog(
                 title: Text("Pilih Makanan", style: AppTextStyles.bb),
-                content: SingleChildScrollView(
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.30,
+                  height: MediaQuery.of(context).size.height * 0.5,
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.max,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       TextField(
                         controller: namaMakanan,
-                        autofocus: true,
                         style: AppTextStyles.cr,
                         decoration: InputDecoration(
                           filled: true,
@@ -615,54 +615,62 @@ class _BerandaState extends State<Beranda> {
                             return aLower.compareTo(bLower);
                           });
 
+                          final uniqueResults = results.toSet().toList();
+
                           setState(() {
-                            filteredMakanan = results.take(3).toList();
+                            filteredMakanan = uniqueResults.take(3).toList();
                           });
 
-                          updateKalori();
                         },
                       ),
                       SizedBox(height: 20),
-                      if (filteredMakanan.isNotEmpty) ...[
-                        Text("Saran Makanan:", style: AppTextStyles.cr),
-                        SizedBox(height: 20),
-                      ],
-                      if (filteredMakanan.isNotEmpty) ...[
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children:
-                              filteredMakanan.map((suggestion) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    namaMakanan.text = suggestion;
-                                    updateKalori();
-                                    setState(() => filteredMakanan = []);
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(
-                                        color: Colors.grey.shade400,
+                      Visibility(
+                        visible: filteredMakanan.isNotEmpty,
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        child: Column(
+                          children: [
+                            Text("Saran Makanan:", style: AppTextStyles.cr),
+                            SizedBox(height: 20),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  filteredMakanan.map((suggestion) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        namaMakanan.text = suggestion;
+                                        updateKalori();
+                                        setState(() => filteredMakanan = []);
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.shade200,
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          suggestion,
+                                          style: AppTextStyles.cr.copyWith(
+                                            fontSize: 14,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      suggestion,
-                                      style: AppTextStyles.cr.copyWith(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+                                    );
+                                  }).toList(),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 20),
-                      ],
+                      ),
                       Row(
                         children: [
                           Expanded(
@@ -733,6 +741,8 @@ class _BerandaState extends State<Beranda> {
                               'berat': finalBerat!,
                               'kalori': kalori.toInt(),
                             });
+                            namaMakanan.clear();
+                            filteredMakanan = [];
                           }
 
                           saveDataToFirebase();

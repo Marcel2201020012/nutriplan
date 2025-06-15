@@ -1,5 +1,4 @@
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/database_services.dart';
@@ -17,7 +16,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String username = '';
   String berat = '';
-
   final uid = AuthServices().currentUid;
 
   @override
@@ -29,18 +27,26 @@ class _ProfilePageState extends State<ProfilePage> {
   void loadUserProfile() async {
     if (uid == null) return;
     final ref = DatabaseServices.ref('users/$uid/profile/');
-
     final snapshot = await ref.get();
+
     if (snapshot.exists) {
       final data = snapshot.value as Map<dynamic, dynamic>;
       setState(() {
-        username = data['nama'];
-        berat = data['berat'];
+        username = data['nama'] ?? 'Tidak diketahui';
+        berat = data['berat'] ?? '-';
       });
     } else {
-      username = '';
-      berat = '';
+      setState(() {
+        username = 'Pengguna Baru';
+        berat = '-';
+      });
     }
+  }
+
+  void logout() async {
+    try {
+      await authServices.value.signOut();
+    } on FirebaseAuthException catch (e) {}
   }
 
   @override
@@ -50,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // FOTO PROFIL IKON NOTIFIKASI
+            // FOTO PROFIL + IKON NOTIFIKASI
             Stack(
               children: [
                 Container(
@@ -58,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/img/danyi_profile.png'),
+                      image: AssetImage('assets/img/logo.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -80,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
 
-            // Card pertama
+            // KARTU PROFIL
             Transform.translate(
               offset: const Offset(0, -40),
               child: Card(
@@ -98,14 +104,19 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icons.person_outline,
                           color: Color(0xFF61B269),
                         ),
-                        title: Text(username, style: AppTextStyles.bl),
+                        title: Text(
+                          "Nama: $username ", 
+                        style: AppTextStyles.bl),
                       ),
                       ListTile(
                         leading: const Icon(
                           Icons.track_changes_outlined,
                           color: Color(0xFF61B269),
                         ),
-                        title: Text(berat, style: AppTextStyles.bl),
+                        title: Text(
+                          "Berat: $berat kg",
+                          style: AppTextStyles.bl,
+                        ),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -130,7 +141,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            // Card fitur lainnya
+            // KARTU FITUR
             Card(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               shape: RoundedRectangleBorder(
@@ -167,8 +178,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text("Keluar"),
-                    onTap: () {
-                      // logout
+                    onTap: () async {
+                      logout();
                     },
                   ),
                 ],

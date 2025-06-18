@@ -6,14 +6,15 @@ import 'package:nutriplan/widgets/text_styles.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
+//Finish ya
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfilePage> createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePageState extends State<ProfilePage> {
   String username = '';
   String berat = '';
   final uid = AuthServices().currentUid;
@@ -46,7 +47,15 @@ class _ProfilePageState extends State<ProfilePage> {
   void logout() async {
     try {
       await authServices.value.signOut();
+      if (!mounted) return;
+      Navigator.of(
+        context,
+      ).pushReplacementNamed('/login'); // atau arahkan ke halaman loginmu
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal logout: ${e.message}")));
     }
   }
 
@@ -64,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/img/danyi_profile.png'),
+                      image: AssetImage('assets/img/logo.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -90,14 +99,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           Icons.person_outline,
                           color: Color(0xFF61B269),
                         ),
-                        title: Text(username, style: AppTextStyles.bl),
+                        title: Text("Nama: $username", style: AppTextStyles.bl),
                       ),
                       ListTile(
                         leading: const Icon(
                           Icons.track_changes_outlined,
                           color: Color(0xFF61B269),
                         ),
-                        title: Text("Berat: $berat kg", style: AppTextStyles.bl),
+                        title: Text(
+                          "Berat: $berat kg",
+                          style: AppTextStyles.bl,
+                        ),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
@@ -106,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => EditProfilePage(),
+                                builder: (_) => const EditProfilePage(),
                               ),
                             );
                           },
@@ -151,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => SettingsPage()),
+                        MaterialPageRoute(builder: (_) => const SettingsPage()),
                       );
                     },
                   ),
@@ -159,9 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text("Keluar"),
-                    onTap: () async {
-                      logout();
-                    },
+                    onTap: logout,
                   ),
                 ],
               ),

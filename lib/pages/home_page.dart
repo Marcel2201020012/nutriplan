@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/notification_service.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -29,6 +30,7 @@ class _BerandaState extends State<Beranda> {
   void initState() {
     super.initState();
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    loadReminder();
     loadUserProfile();
     loadHistorisDataFromFirebase(today);
 
@@ -40,6 +42,32 @@ class _BerandaState extends State<Beranda> {
   }
 
   final uid = AuthServices().currentUid;
+
+  void loadReminder() async {
+    final key = DateTime.now().toIso8601String().substring(0, 10);
+    final ref = DatabaseServices.ref('users/$uid/historis/$key');
+    final snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      print("set reminder");
+
+      final now = DateTime.now();
+      DateTime scheduledTime = DateTime(now.year, now.month, now.day, 0, 0);
+
+      if (scheduledTime.isBefore(now)) {
+        scheduledTime = scheduledTime.add(Duration(days: 1));
+      }
+
+      await NotificationService.jadwalNotif(
+        id: 0,
+        title: "Jangan Lupa Makan!",
+        body: "Ayo tambahkan menu makanan hari ini!",
+        waktu: scheduledTime,
+      );
+    } else {
+      print("tidak ada reminder");
+    }
+  }
 
   void loadUserProfile() async {
     if (uid == null) return;
@@ -165,7 +193,7 @@ class _BerandaState extends State<Beranda> {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      appBar: appbar(username),
+      appBar: appbar(username, context),
       body: columnHome(context),
     );
   }
@@ -620,7 +648,6 @@ class _BerandaState extends State<Beranda> {
                           setState(() {
                             filteredMakanan = uniqueResults.take(3).toList();
                           });
-
                         },
                       ),
                       SizedBox(height: 20),

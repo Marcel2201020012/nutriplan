@@ -118,7 +118,7 @@ class _KalenderPageState extends State<KalenderPage> {
   @override
   Widget build(BuildContext context) {
     return GradientScaffold(
-      appBar: appbar(username),
+      appBar: appbar(username, context),
       body: Center(
         child: SingleChildScrollView(
           child: SizedBox(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:nutriplan/pages/notification_page.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 
-AppBar appbar(String username){
+AppBar appbar(String username, BuildContext context){
   return AppBar(
       leading: GestureDetector(
         onTap: () {},
@@ -15,18 +16,25 @@ AppBar appbar(String username){
         ),
       ),
       title: Text('Hai, $username', style: AppTextStyles.h5b),
-      actions: [
-        GestureDetector(
-          onTap: () {},
-          child: SizedBox(
-            width: 60,
-            child: SvgPicture.asset(
-              'assets/icons/notif.svg',
-              height: 35,
-              width: 35,
-            ),
-          ),
-        ),
-      ],
+      // actions: [
+      //   GestureDetector(
+      //     onTap: () {
+      //       Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                   builder: (_) => const NotificationPage(),
+      //                 ),
+      //               );
+      //     },
+      //     child: SizedBox(
+      //       width: 60,
+      //       child: SvgPicture.asset(
+      //         'assets/icons/notif.svg',
+      //         height: 35,
+      //         width: 35,
+      //       ),
+      //     ),
+      //   ),
+      // ],
     );
 }

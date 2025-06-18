@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/auth_services.dart';
 import 'package:nutriplan/cek_otentifikasi.dart';
-import 'package:nutriplan/pages/mainscreen.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 
 class DaftarPage extends StatefulWidget {

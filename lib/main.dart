@@ -1,9 +1,12 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nutriplan/cek_otentifikasi.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:nutriplan/notification_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
 import 'models/data_historis.dart';
@@ -23,6 +26,10 @@ void main() async {
   //inisialisasi firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  await NotificationService.init();
+
+  await requestNotificationPermission();
+
   runApp(const MyApp());
 }
 
@@ -38,5 +45,18 @@ class MyApp extends StatelessWidget {
       //aktivasi fitur login
       home: CekOtentifikasi(),
     );
+  }
+}
+
+Future<void> requestNotificationPermission() async {
+  final androidInfo = await DeviceInfoPlugin().androidInfo;
+  if (androidInfo.version.sdkInt >= 33) {
+    final status = await Permission.notification.status;
+    if (!status.isGranted) {
+      final result = await Permission.notification.request();
+      print('Notification permission granted: $result');
+    } else {
+      print('Notification permission already granted');
+    }
   }
 }

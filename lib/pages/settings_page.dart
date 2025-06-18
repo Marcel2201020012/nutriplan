@@ -13,12 +13,6 @@ class SettingsPage extends StatelessWidget {
         leading: BackButton(color: Colors.black),
         centerTitle: true,
         title: Text("Pengaturan", style: TextStyle(color: Colors.black)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_none, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Center(
         child: Card(
@@ -30,8 +24,6 @@ class SettingsPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              buildSettingItem(Icons.notifications, "Notifikasi"),
-              buildDivider(),
               buildSettingItem(Icons.privacy_tip, "Privasi"),
               buildDivider(),
               buildSettingItem(Icons.security, "Keamanan"),

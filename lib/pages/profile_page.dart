@@ -57,7 +57,6 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // FOTO PROFIL + IKON NOTIFIKASI
             Stack(
               children: [
                 Container(
@@ -68,20 +67,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       image: AssetImage('assets/img/danyi_profile.png'),
                       fit: BoxFit.cover,
                     ),
-                  ),
-                ),
-                Positioned(
-                  top: 10,
-                  right: 20,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      // Navigasi notifikasi
-                    },
                   ),
                 ),
               ],

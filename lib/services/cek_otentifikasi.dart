@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/database_services.dart';
 import 'package:nutriplan/pages/calculation_page.dart';
 import 'package:nutriplan/pages/initial_page.dart';
 import 'package:nutriplan/pages/login_page.dart';

@@ -10,13 +10,13 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: BackButton(color: Colors.black),
+        leading: const BackButton(color: Colors.black),
         centerTitle: true,
-        title: Text("Pengaturan", style: TextStyle(color: Colors.black)),
+        title: const Text("Pengaturan", style: TextStyle(color: Colors.black)),
       ),
       body: Center(
         child: Card(
-          margin: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -42,7 +42,7 @@ class SettingsPage extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: Colors.teal),
       title: Text(title),
-      trailing: Icon(Icons.chevron_right),
+      trailing: const Icon(Icons.chevron_right),
       onTap: () {
         // tambahkan aksi jika perlu
       },
@@ -50,6 +50,6 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget buildDivider() {
-    return Divider(height: 1);
+    return const Divider(height: 1);
   }
 }

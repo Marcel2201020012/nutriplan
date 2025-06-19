@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/cek_otentifikasi.dart';
+import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 
 class DaftarPage extends StatefulWidget {
@@ -16,6 +16,8 @@ class _DaftarPageState extends State<DaftarPage> {
   TextEditingController passwrodController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String error = '';
+
+  bool hidePassword = true;
 
   @override
   void dispose() {
@@ -54,31 +56,45 @@ class _DaftarPageState extends State<DaftarPage> {
                     child: Image.asset('assets/img/logo.png'),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Email"),
+                    decoration: const InputDecoration(hintText: "Email"),
                     controller: emailController,
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Password"),
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            hidePassword = !hidePassword;
+                          });
+                        },
+                        icon: Icon(
+                          hidePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
+                    ),
                     controller: passwrodController,
                   ),
-                  Text(error, style: TextStyle(color: Colors.redAccent)),
+                  Text(error, style: const TextStyle(color: Colors.redAccent)),
                   TextButton(
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         daftarAkun();
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => CekOtentifikasi()),
+                          MaterialPageRoute(builder: (context) => const CekOtentifikasi()),
                         );
                       }
                     },
-                    child: Text("Daftar"),
+                    child: const Text("Daftar"),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text("Login"),
+                    child: const Text("Login"),
                   ),
                 ],
               ),

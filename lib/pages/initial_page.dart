@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/cek_otentifikasi.dart';
-import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
+import 'package:nutriplan/services/database_services.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 
@@ -121,8 +121,8 @@ class _InitialPageState extends State<InitialPage> {
                             border: Border.all(color: Colors.grey.shade300),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            children: const [
+                          child: const Column(
+                            children: [
                               Icon(Icons.male, size: 40, color: Colors.blue),
                               SizedBox(height: 4),
                               Text("Male", style: AppTextStyles.cb),
@@ -145,8 +145,8 @@ class _InitialPageState extends State<InitialPage> {
                             border: Border.all(color: Colors.grey.shade300),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            children: const [
+                          child: const Column(
+                            children: [
                               Icon(Icons.female, size: 40, color: Colors.pink),
                               SizedBox(height: 4),
                               Text("Female", style: AppTextStyles.cb),

@@ -1,40 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:nutriplan/pages/notification_page.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 
 AppBar appbar(String username, BuildContext context){
   return AppBar(
       leading: GestureDetector(
         onTap: () {},
-        child: Align(
+        child: const Align(
           alignment: Alignment.centerRight,
           child: CircleAvatar(
             radius: 20,
-            backgroundImage: AssetImage('assets/img/danyi_profile.png'),
+            child: Icon(Icons.account_circle_outlined, size: 24,),
           ),
         ),
       ),
       title: Text('Hai, $username', style: AppTextStyles.h5b),
-      // actions: [
-      //   GestureDetector(
-      //     onTap: () {
-      //       Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                   builder: (_) => const NotificationPage(),
-      //                 ),
-      //               );
-      //     },
-      //     child: SizedBox(
-      //       width: 60,
-      //       child: SvgPicture.asset(
-      //         'assets/icons/notif.svg',
-      //         height: 35,
-      //         width: 35,
-      //       ),
-      //     ),
-      //   ),
-      // ],
     );
 }

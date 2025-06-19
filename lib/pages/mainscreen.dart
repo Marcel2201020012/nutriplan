@@ -29,8 +29,8 @@ class _MainScreenState extends State<MainScreen> {
         },
         currentIndex: indexNavigasi,
         type: BottomNavigationBarType.shifting,
-        unselectedItemColor: Color(0xFFA4A4AD),
-        selectedItemColor: Color(0xFF61B269),
+        unselectedItemColor: const Color(0xFFA4A4AD),
+        selectedItemColor: const Color(0xFF61B269),
         selectedLabelStyle: AppTextStyles.cb,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),

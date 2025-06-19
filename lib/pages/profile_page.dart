@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
+import 'package:nutriplan/services/database_services.dart';
+import 'package:nutriplan/services/notification_service.dart';
 import 'package:nutriplan/widgets/text_styles.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 
-//Finish ya
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -47,10 +48,12 @@ class ProfilePageState extends State<ProfilePage> {
   void logout() async {
     try {
       await authServices.value.signOut();
+      await NotificationService.notificationsPlugin.cancelAll();
       if (!mounted) return;
-      Navigator.of(
+      Navigator.pushReplacement(
         context,
-      ).pushReplacementNamed('/login'); // atau arahkan ke halaman loginmu
+        MaterialPageRoute(builder: (_) => const CekOtentifikasi()),
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

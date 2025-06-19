@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
 import 'package:nutriplan/pages/daftar_page.dart';
 import 'package:nutriplan/pages/lupa_password_page.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
@@ -17,6 +17,8 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwrodController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   String error = "";
+
+  bool hidePassword = true;
 
   @override
   void initState() {
@@ -74,39 +76,54 @@ class _LoginPageState extends State<LoginPage> {
                     child: Image.asset('assets/img/logo.png'),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Email"),
+                    decoration: const InputDecoration(hintText: "Email"),
                     controller: emailController,
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Password"),
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            hidePassword = !hidePassword;
+                          });
+                        },
+                        icon: Icon(
+                          hidePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
+                    ),
                     controller: passwrodController,
+                    obscureText: hidePassword,
                   ),
-                  Text(error, style: TextStyle(color: Colors.redAccent)),
+                  Text(error, style: const TextStyle(color: Colors.redAccent)),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LupaPasswordPage(),
+                          builder: (context) => const LupaPasswordPage(),
                         ),
                       );
                     },
-                    child: Text("Lupa Password"),
+                    child: const Text("Lupa Password"),
                   ),
                   TextButton(
                     onPressed: () {
                       login();
                     },
-                    child: Text("Login"),
+                    child: const Text("Login"),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DaftarPage()),
+                        MaterialPageRoute(builder: (context) => const DaftarPage()),
                       );
                     },
-                    child: Text("Daftar"),
+                    child: const Text("Daftar"),
                   ),
                 ],
               ),

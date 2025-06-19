@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 
 class LupaPasswordPage extends StatefulWidget {
@@ -39,7 +39,7 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
   void showPesan() {
     ScaffoldMessenger.of(context).clearMaterialBanners();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Cek Email Anda Untuk Mengatur Ulang Password!")),
+      const SnackBar(content: Text("Cek Email Anda Untuk Mengatur Ulang Password!")),
     );
   }
 
@@ -59,15 +59,15 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
                     child: Image.asset('assets/img/logo.png'),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Email"),
+                    decoration: const InputDecoration(hintText: "Email"),
                     controller: emailController,
                   ),
-                  Text(error, style: TextStyle(color: Colors.redAccent)),
+                  Text(error, style: const TextStyle(color: Colors.redAccent)),
                   TextButton(
                     onPressed: () {
                       resetPassword();
                     },
-                    child: Text("Ganti Password"),
+                    child: const Text("Ganti Password"),
                   ),
                 ],
               ),

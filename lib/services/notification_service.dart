@@ -15,8 +15,8 @@ class NotificationService {
     final location = tz.getLocation('Asia/Jakarta');
     tz.setLocalLocation(location);
 
-    final android = AndroidInitializationSettings('ic_launcher');
-    final settings = InitializationSettings(android: android);
+    const android = AndroidInitializationSettings('ic_launcher');
+    const settings = InitializationSettings(android: android);
 
     await _notificationsPlugin.initialize(settings);
   }
@@ -32,7 +32,7 @@ class NotificationService {
       title,
       body,
       tz.TZDateTime.from(waktu, tz.local),
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_channel',
           'Daily Reminder',

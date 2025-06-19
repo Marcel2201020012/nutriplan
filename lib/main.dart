@@ -1,27 +1,16 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:nutriplan/cek_otentifikasi.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:nutriplan/notification_service.dart';
+import 'package:nutriplan/services/notification_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'firebase_options.dart';
-
-import 'models/data_historis.dart';
-
+import 'firebase/firebase_options.dart';
 void main() async {
   //inisialisasi package date
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
-
-  //inisialisasi penyimpanan lokal hive
-  await Hive.initFlutter();
-  Hive.registerAdapter(DataHistorisAdapter());
-  await Hive.openBox<DataHistoris>("DataHistorisBox");
-
-  await Hive.openBox("UserProfile");
 
   //inisialisasi firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -43,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(fontFamily: 'Nunito'),
 
       //aktivasi fitur login
-      home: CekOtentifikasi(),
+      home: const CekOtentifikasi(),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nutriplan/auth_services.dart';
-import 'package:nutriplan/cek_otentifikasi.dart';
-import 'package:nutriplan/database_services.dart';
+import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
+import 'package:nutriplan/services/database_services.dart';
 import 'package:nutriplan/widgets/gradient_scaffold.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 

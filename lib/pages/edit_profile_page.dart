@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/services/auth_services.dart';
+import 'package:nutriplan/services/cek_otentifikasi.dart';
 import 'package:nutriplan/services/database_services.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -15,6 +16,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _beratController = TextEditingController();
   final _passwordLamaController = TextEditingController();
   final _passwordBaruController = TextEditingController();
+
+  bool hidePassword = true;
 
   final uid = AuthServices().currentUid;
   User? currentUser;
@@ -71,12 +74,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil berhasil diperbarui')),
       );
-      Navigator.pop(context);
+      if (context.mounted) {
+        //cek apakah widget ter-disposed
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CekOtentifikasi()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal update: ${e.message}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal update: ${e.message}')));
     }
   }
 
@@ -88,12 +97,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -128,13 +131,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _passwordLamaController,
                       icon: Icons.lock_outline,
                       hintText: "Password Saat Ini",
-                      isObscure: true,
+                      isObscure: hidePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          hidePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            hidePassword = !hidePassword;
+                          });
+                        },
+                      ),
                     ),
                     buildTextField(
                       controller: _passwordBaruController,
                       icon: Icons.lock,
                       hintText: "Password Baru",
-                      isObscure: true,
+                      isObscure: hidePassword,
                     ),
                     const SizedBox(height: 12),
                     Align(
@@ -162,6 +178,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required IconData icon,
     required String hintText,
     bool isObscure = false,
+    Widget? suffixIcon,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -170,10 +187,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         obscureText: isObscure,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.teal),
+          suffixIcon: suffixIcon,
           hintText: hintText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

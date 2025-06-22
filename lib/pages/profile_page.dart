@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nutriplan/services/auth_services.dart';
 import 'package:nutriplan/services/cek_otentifikasi.dart';
@@ -64,40 +65,49 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    const isWeb = kIsWeb;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final logoSize = isWeb ? screenWidth * 0.15 : screenWidth * 0.3;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0FAF8),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              children: [
-                Container(
-                  height: 500,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/img/logo.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+            const SizedBox(height: 60),
+
+            // Logo Centered with Shadow
+            Center(
+              child: SizedBox(
+                width: logoSize,
+                height: logoSize,
+                child: ClipOval(
+                  child: Image.asset('assets/img/logo.png', fit: BoxFit.cover),
                 ),
-              ],
+              ),
             ),
 
-            // KARTU PROFIL
-            Transform.translate(
-              offset: const Offset(0, -40),
+            const SizedBox(height: 20),
+
+            // Profile Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                elevation: 4,
+                elevation: 6,
+                shadowColor: Colors.black.withValues(alpha: 13),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ListTile(
+                        contentPadding: EdgeInsets.zero,
                         leading: const Icon(
                           Icons.person_outline,
                           color: Color(0xFF61B269),
@@ -105,6 +115,7 @@ class ProfilePageState extends State<ProfilePage> {
                         title: Text("Nama: $username", style: AppTextStyles.bl),
                       ),
                       ListTile(
+                        contentPadding: EdgeInsets.zero,
                         leading: const Icon(
                           Icons.track_changes_outlined,
                           color: Color(0xFF61B269),
@@ -116,7 +127,7 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: TextButton(
+                        child: TextButton.icon(
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -125,8 +136,13 @@ class ProfilePageState extends State<ProfilePage> {
                               ),
                             );
                           },
-                          child: const Text(
-                            "Perbaharui ›",
+                          icon: const Icon(
+                            Icons.edit,
+                            size: 18,
+                            color: Color(0xFF61B269),
+                          ),
+                          label: const Text(
+                            "Perbarui",
                             style: TextStyle(color: Color(0xFF61B269)),
                           ),
                         ),
@@ -137,50 +153,60 @@ class ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            // KARTU FITUR
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 4,
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(
-                      Icons.bar_chart,
-                      color: Color(0xFF61B269),
+            const SizedBox(height: 20),
+
+            // Feature Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 6,
+                shadowColor: Colors.black.withValues(alpha: 13),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.bar_chart,
+                        color: Color(0xFF61B269),
+                      ),
+                      title: const Text("Statistik"),
+                      onTap: () {
+                        // Navigate to statistik
+                      },
                     ),
-                    title: const Text("Statistik"),
-                    onTap: () {
-                      // Navigasi statistik
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.settings,
-                      color: Color(0xFF61B269),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.settings,
+                        color: Color(0xFF61B269),
+                      ),
+                      title: const Text("Pengaturan"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsPage(),
+                          ),
+                        );
+                      },
                     ),
-                    title: const Text("Pengaturan"),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SettingsPage()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: const Text("Keluar"),
-                    onTap: logout,
-                  ),
-                ],
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.logout,
+                        color: Colors.redAccent,
+                      ),
+                      title: const Text("Keluar"),
+                      onTap: logout,
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
           ],
         ),
       ),

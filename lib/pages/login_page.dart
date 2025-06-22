@@ -72,11 +72,12 @@ class _LoginPageState extends State<LoginPage> {
     double formWidth =
         kIsWeb
             ? MediaQuery.of(context).size.width * 0.5
-            : MediaQuery.of(context).size.width * 0.7;
+            : MediaQuery.of(context).size.width * 0.9;
 
     return GradientScaffold(
       appBar: AppBar(
         title: const Text("Login", style: AppTextStyles.h5b),
+        automaticallyImplyLeading: false,
         centerTitle: true,
         elevation: 0,
       ),

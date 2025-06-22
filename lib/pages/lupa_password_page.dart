@@ -57,7 +57,7 @@ class _LupaPasswordPageState extends State<LupaPasswordPage> {
     double formWidth =
         kIsWeb
             ? MediaQuery.of(context).size.width * 0.5
-            : MediaQuery.of(context).size.width * 0.7;
+            : MediaQuery.of(context).size.width * 0.9;
 
     return GradientScaffold(
       appBar: AppBar(

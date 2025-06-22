@@ -1,16 +1,18 @@
-# nutriplan
+# 🥗 NutriPlan
 
-A new Flutter project.
+**NutriPlan** adalah aplikasi mobile yang membantu pengguna dalam merencanakan menu harian dan mencatat asupan makanan serta minuman dengan mudah dan terorganisir. Aplikasi ini dirancang untuk mempermudah pengelolaan pola makan serta meningkatkan kesadaran terhadap gizi harian.
 
-## Getting Started
+## ✨ Fitur Utama
 
-This project is a starting point for a Flutter application.
+- 📅 Perhitungan kalori ideal harian
+- 📝 Pencatatan asupan kalori makanan
+- 📊 Historis konsumsi harian
 
-A few resources to get you started if this is your first Flutter project:
+## 🎯 Tujuan
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+NutriPlan ditujukan bagi individu yang ingin:
+- Meningkatkan kesadaran gizi
+- Membentuk kebiasaan makan sehat
+- Mengatur pola makan yang sesuai dengan preferensi dan kebutuhan pribadi
 
-For help getting started with Flutter development, view the
-[Online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
